@@ -1,5 +1,6 @@
 package com.pit.qrcodesrajabrawijaya;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -10,6 +11,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.pit.qrcodesrajabrawijaya.activities.AboutActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -106,6 +109,13 @@ public class MainActivity extends AppCompatActivity
                 }
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
+            case R.id.nav_about:
+                if(!menuItem.isChecked()) {
+                    menuItem.setChecked(false);
+                    startActivity(new Intent(this, AboutActivity.class));
+                }
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return false;
         }
         return false;
     }
