@@ -9,10 +9,6 @@ import android.view.View;
 import com.pit.qrcodesrajabrawijaya.MainActivity;
 import com.pit.qrcodesrajabrawijaya.R;
 
-/**
- * Created by khusika on 29/05/17.
- */
-
 public class AboutActivity extends AppCompatActivity {
 
     private Toolbar toolbar;

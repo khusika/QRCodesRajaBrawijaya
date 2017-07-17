@@ -8,17 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * Created by khusika on 16/07/17.
- */
-
 public class MainFragment extends Fragment {
 
     private MainActivity main;
     private Toolbar toolbar;
 
     public MainFragment() {
-        // Required empty public constructor
     }
 
     @Override
