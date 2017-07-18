@@ -6,6 +6,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="about_title">About Us</string>
+    <string name="data_title">Data Penugasan</string>
 
     <string name="text_about">QR Codes Raja Brawijaya adalah aplikasi berbasis android yang digunakan untuk memindai kode pada lembar penugasan mahasiswa baru.</string>
 
