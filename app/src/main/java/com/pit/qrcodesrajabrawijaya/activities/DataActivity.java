@@ -22,7 +22,7 @@ import com.opencsv.CSVWriter;
 import com.pit.qrcodesrajabrawijaya.MainActivity;
 import com.pit.qrcodesrajabrawijaya.R;
 import com.pit.qrcodesrajabrawijaya.database.Absensi;
-import com.pit.qrcodesrajabrawijaya.database.DatabaseHandler;
+import com.pit.qrcodesrajabrawijaya.DatabaseHandler;
 
 import java.io.File;
 import java.io.FileWriter;
