@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.pit.qrcodesrajabrawijaya.activities.AboutActivity;
 
@@ -21,31 +20,21 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
 
-    private final static String SELECTED_TAG = "selected_index";
-    private final static String FRAGMENT_MAIN_TAG = "fragment_main";
-    private final static int MAIN = 0;
-    private static int selectedIndex;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                        this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-
-        if(savedInstanceState!=null){
-            navigationView.getMenu().getItem(savedInstanceState.getInt(SELECTED_TAG)).setChecked(true);
-            return;
-        }
-
-        selectedIndex = MAIN;
-
-        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,
-                new MainFragment(),FRAGMENT_MAIN_TAG).commit();
-
     }
 
     @Override
@@ -59,12 +48,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(SELECTED_TAG, selectedIndex);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
@@ -75,32 +58,11 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public void setupNavigationDrawer(Toolbar toolbar){
-        toggle = new ActionBarDrawerToggle(this, drawerLayout,toolbar,
-                R.string.navigation_drawer_open,R.string.navigation_drawer_close){
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-            }
-        };
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-    }
-
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         switch(menuItem.getItemId()) {
             case R.id.nav_home:
                 if(!menuItem.isChecked()){
-                    selectedIndex = MAIN;
-                    menuItem.setChecked(true);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                            new MainFragment(), FRAGMENT_MAIN_TAG).commit();
                 }
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
