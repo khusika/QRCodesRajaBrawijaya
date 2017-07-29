@@ -74,6 +74,7 @@
             android:layout_toRightOf="@id/centerHorizont"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
+            android:textColor="@android:color/white"
             android:text="HASIL"
             android:textSize="17sp"
             android:gravity="center"

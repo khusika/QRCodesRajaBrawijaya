@@ -16,6 +16,11 @@
         android:elevation="4dp"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-    <include layout="@layout/content_about" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+        <include layout="@layout/content_about" />
+    </ScrollView>
 
 </LinearLayout>
