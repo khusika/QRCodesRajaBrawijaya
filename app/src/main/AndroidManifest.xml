@@ -3,7 +3,9 @@
     package="com.pit.qrcodesrajabrawijaya">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -27,7 +29,12 @@
         <activity
             android:name="com.pit.qrcodesrajabrawijaya.activities.DataActivity"
             android:theme="@style/AppTheme2" />
-
+        <activity
+            android:name="com.pit.qrcodesrajabrawijaya.ContinuousActivity"
+            android:theme="@style/AppTheme2" />
+        <activity
+            android:name="com.pit.qrcodesrajabrawijaya.DaftarActivity"
+            android:theme="@style/AppTheme2" />
     </application>
 
 </manifest>

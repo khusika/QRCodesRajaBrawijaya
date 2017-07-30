@@ -2,41 +2,51 @@ package com.pit.qrcodesrajabrawijaya;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.zxing.ResultPoint;
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.zxing.client.android.BeepManager;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
-import com.journeyapps.barcodescanner.BarcodeCallback;
-import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.pit.qrcodesrajabrawijaya.activities.AboutActivity;
+import com.pit.qrcodesrajabrawijaya.activities.DataActivity;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import eu.amirs.JSON;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -51,7 +61,10 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
 
+    TextView lblStatus, lblNamaOP, lblNIMOP, lblDivisiOP, lblStatusOP;
     DatabaseHandler db = new DatabaseHandler(this);
+
+    TelephonyManager telephonyManager;
 
     private static final int REQUEST_RUNTIME_PERMISSION = 123;
 
@@ -72,25 +85,13 @@ public class MainActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_scanner);
-        barcodeView.decodeContinuous(callback);
+        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
-        beepManager = new BeepManager(this);
-
-
-        /**
-         * CRUD Operations
-         * */
-
-        // Reading all contacts
-        Log.d("Reading: ", "Reading all contacts..");
-        List<Absensi> absensi = db.getAllAbsensi();
-
-        for (Absensi cn : absensi) {
-            String log = "Id: "+cn.getID()+" , NIM: " + cn.getNim() + " , WAKTU: " + cn.getWaktu();
-            // Writing Absensis to log
-            Log.d("NIM: ", log);
-        }
+        lblStatus = (TextView) findViewById(R.id.txtStatus);
+        lblNamaOP = (TextView) findViewById(R.id.txtNamaOP);
+        lblNIMOP = (TextView) findViewById(R.id.txtNIMOP);
+        lblDivisiOP = (TextView) findViewById(R.id.txtDivisiOP);
+        lblStatusOP = (TextView) findViewById(R.id.txtStatusOP);
 
     }
 
@@ -123,6 +124,20 @@ public class MainActivity extends AppCompatActivity
                 }
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
+            case R.id.nav_scan:
+                if(!menuItem.isChecked()) {
+                    menuItem.setChecked(false);
+                    startActivity(new Intent(this, ContinuousActivity.class));
+                }
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return false;
+            case R.id.nav_data:
+                if(!menuItem.isChecked()) {
+                    menuItem.setChecked(false);
+                    startActivity(new Intent(this, DataActivity.class));
+                }
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return false;
             case R.id.nav_about:
                 if(!menuItem.isChecked()) {
                     menuItem.setChecked(false);
@@ -134,45 +149,116 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
-    public void mulaiScan() {
-        IntentIntegrator integrator = new IntentIntegrator(this);
-        integrator.setOrientationLocked(true);
-        integrator.initiateScan();
+    public void keDaftar() {
+        Intent intent = new Intent(this, DaftarActivity.class);
+        startActivity(intent);
     }
-
-    private String getTanggal() {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
-        return dateFormat.format(date);
-    }
-
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if(result != null) {
-            if(result.getContents() == null) {
-                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
-                if(db.cekNim(result.getContents()) == 0) {
-                    db.addAbsensi(new Absensi(result.getContents(), getTanggal()));
-                }
-                mulaiScan();
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    public void scanAbsensi(View view){
-        if (CheckPermission(MainActivity.this, Manifest.permission.CAMERA)) {
-            // you have permission go ahead
-            mulaiScan();
+    public void onResume(){
+        super.onResume();
+        if (CheckPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE)) {
+            authUser();
         } else {
             // you do not have permission go request runtime permissions
-            RequestPermission(MainActivity.this, Manifest.permission.CAMERA, REQUEST_RUNTIME_PERMISSION);
+            RequestPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE, REQUEST_RUNTIME_PERMISSION);
         }
+
+
+    }
+
+    private void authUser() {
+        final String AUTH_URL = "http://rajabrawijaya.ub.ac.id/api/auth/"+getUUID();
+
+        final ProgressDialog loadingDialog = new ProgressDialog(MainActivity.this);
+        //set message of the dialog
+        loadingDialog.setMessage("Menghubungkan ke server...");
+        //show dialog
+        loadingDialog.show();
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, AUTH_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        //Toast.makeText(MainActivity.this,response,Toast.LENGTH_LONG).show();
+                        loadingDialog.dismiss();
+                        JSON json = new JSON(response);
+                        int kodeauth = json.key("kode").intValue();
+
+                        switch (kodeauth) {
+                            case 1:
+                                lblNamaOP.setText(json.key("user").key("nama").stringValue());
+                                lblNIMOP.setText(json.key("user").key("NIM").stringValue());
+                                lblDivisiOP.setText(json.key("user").key("divisi").stringValue());
+                                lblStatusOP.setText("Ready to scan.");
+                                lblStatus.setVisibility(View.INVISIBLE);
+                                return;
+
+                            case 2:
+                                lblNamaOP.setText(json.key("user").key("nama").stringValue());
+                                lblNIMOP.setText(json.key("user").key("NIM").stringValue());
+                                lblDivisiOP.setText(json.key("user").key("divisi").stringValue());
+                                lblStatusOP.setText("-");
+                                lblStatus.setText("USER BELUM AKTIF!");
+                                return;
+
+                            case 3:
+                                keDaftar();
+                                return;
+
+                            default:
+                                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                                alertDialog.setTitle("Terjadi Kesalahan!");
+                                alertDialog.setMessage("Hubungi anak PIT - ["+response+"]");
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Keluar",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                finish();
+                                                System.exit(0);
+                                            }
+                                        });
+                                alertDialog.show();
+                                return;
+
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        loadingDialog.dismiss();
+
+                        String message = null;
+                        if (error instanceof NetworkError) {
+                            message = "Tidak bisa terhubung ke server. Cek koneksi internet kamu! (1)";
+                        } else if (error instanceof ServerError) {
+                            message = "Terjadi kesalahan server. Hubungi anak PIT & coba lagi nanti!";
+                        } else if (error instanceof AuthFailureError) {
+                            message = "Tidak bisa terhubung ke server. Cek koneksi internet kamu! (2)";
+                        } else if (error instanceof ParseError) {
+                            message = "Terjadi kesalahan parsing. Hubungi anak PIT & coba lagi nanti!";
+                        } else if (error instanceof NoConnectionError) {
+                            message = "Tidak ada koneksi internet. Cek koneksi internet kamu!";
+                        } else if (error instanceof TimeoutError) {
+                            message = "Koneksi timeout! Cek koneksi internet kamu!";
+                        }
+
+                        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                        alertDialog.setTitle("Error!");
+                        alertDialog.setMessage(message);
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Keluar",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        finish();
+                                        System.exit(0);
+                                    }
+                                });
+                        alertDialog.show();
+                    }
+                });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
     }
 
     public boolean CheckPermission(Context context, String Permission) {
@@ -200,77 +286,57 @@ public class MainActivity extends AppCompatActivity
             case REQUEST_RUNTIME_PERMISSION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // you have permission go ahead
-                    mulaiScan();
+                    authUser();
                 } else {
-                    Toast.makeText(getApplicationContext(),"Error! Kamu Harus Mengizinkan Aplikasi mengakses kamera!",Toast.LENGTH_SHORT).show();
+                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                    alertDialog.setTitle("Error");
+                    alertDialog.setMessage("Kamu harus mengizinkan aplikasi ini!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Keluar",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                    System.exit(0);
+                                }
+                            });
+                    alertDialog.show();
                 }
                 return;
             }
         }
     }
 
-    private BarcodeCallback callback = new BarcodeCallback() {
-        @Override
-        public void barcodeResult(BarcodeResult result) {
-            if(result.getText() == null || result.getText().equals(lastText)) {
-                // Prevent duplicate scans
-                return;
-            }
 
-            lastText = result.getText();
-            barcodeView.setStatusText(result.getText());
-            beepManager.playBeepSoundAndVibrate();
-
-            //Added preview of scanned barcode
-            ImageView imageView = (ImageView) findViewById(R.id.barcodePreview);
-            TextView textView = (TextView) findViewById(R.id.txtHasil);
-            //imageView.setImageBitmap(result.getBitmapWithResultPoints(Color.YELLOW));
-
-            if (counter % 2 == 0 ) {
-                imageView.setBackgroundColor(Color.rgb(85, 255, 0));
-            }
-            else {
-                imageView.setBackgroundColor(Color.rgb(255, 0, 0));
-            }
-            textView.setText(result.getText());
-            counter++;
-
+    public String getUUID() {
+        try {
+            String data = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID) + telephonyManager.getDeviceId() + Build.MANUFACTURER + Build.MODEL + Build.VERSION.RELEASE;
+            return SHA256(data);
         }
-
-        @Override
-        public void possibleResultPoints(List<ResultPoint> resultPoints) {
+        catch (NoSuchAlgorithmException e){
+            Log.e("GAGAL UUID", e.toString());
+            return null;
         }
-    };
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        barcodeView.resume();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        barcodeView.pause();
+    private static String bytesToHexString(byte[] bytes) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(0xFF & bytes[i]);
+            if (hex.length() == 1) {
+                sb.append('0');
+            }
+            sb.append(hex);
+        }
+        return sb.toString();
     }
 
-    public void pause(View view) {
-        barcodeView.pause();
-    }
+    public static String SHA256 (String text) throws NoSuchAlgorithmException {
 
-    public void resume(View view) {
-        barcodeView.resume();
-    }
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
 
-    public void triggerScan(View view) {
-        barcodeView.decodeSingle(callback);
-    }
+        md.update(text.getBytes());
+        byte[] digest = md.digest();
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return barcodeView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+        return bytesToHexString(digest);
     }
 
 }

@@ -17,12 +17,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
-import com.pit.qrcodesrajabrawijaya.MainActivity;
-import com.pit.qrcodesrajabrawijaya.R;
 import com.pit.qrcodesrajabrawijaya.Absensi;
 import com.pit.qrcodesrajabrawijaya.DatabaseHandler;
+import com.pit.qrcodesrajabrawijaya.MainActivity;
+import com.pit.qrcodesrajabrawijaya.R;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -31,11 +32,11 @@ import java.util.List;
 
 public class DataActivity extends AppCompatActivity {
 
-    DatabaseHandler db = new DatabaseHandler(this);
-
+    private ArrayAdapter mAdapter;
     private Toolbar toolbar;
     private Intent i;
-    private ArrayAdapter mAdapter;
+
+    DatabaseHandler db = new DatabaseHandler(this);
 
     private static final int REQUEST_RUNTIME_PERMISSION = 123;
 
@@ -44,12 +45,9 @@ public class DataActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data);
 
-        toolbar = (Toolbar) findViewById(R.id.data_toolbar);
-        setupToolbar();
-
         ListView lv = (ListView) findViewById(R.id.lvAbsen);
         List<String> initialList = new ArrayList<String>(); //load these
-        mAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, initialList);
+        mAdapter = new ArrayAdapter(this, R.layout.data_listview, initialList);
         lv.setAdapter(mAdapter);
 
         List<Absensi> absensi = db.getAllAbsensi();
@@ -58,6 +56,8 @@ public class DataActivity extends AppCompatActivity {
             String log = "NIM: " + cn.getNim() + " , WAKTU: " + cn.getWaktu();
             mAdapter.add(log);
         }
+        toolbar = (Toolbar) findViewById(R.id.data_toolbar);
+        setupToolbar();
     }
 
     private void setupToolbar(){
@@ -85,7 +85,7 @@ public class DataActivity extends AppCompatActivity {
             exportDir.mkdirs();
         }
 
-        File file = new File(exportDir, "testabsensi.csv");
+        File file = new File(exportDir, "penugasanrb17.csv");
         try
         {
             file.createNewFile();
@@ -101,7 +101,7 @@ public class DataActivity extends AppCompatActivity {
             }
             csvWrite.close();
             curCSV.close();
-            Log.d("CSV","CSV DIEXPORT!");
+            Toast.makeText(getApplicationContext(),"DATA TELAH TERSIMPAN", Toast.LENGTH_SHORT).show();
         }
         catch(Exception sqlEx)
         {
@@ -153,5 +153,6 @@ public class DataActivity extends AppCompatActivity {
             }
         }
     }
+
 
 }

@@ -7,6 +7,14 @@
             android:icon="@drawable/ic_menu_home"
             android:title="Home" />
         <item
+            android:id="@+id/nav_scan"
+            android:icon="@drawable/ic_menu_scan"
+            android:title="Scan Penugasan" />
+        <item
+            android:id="@+id/nav_data"
+            android:icon="@drawable/ic_menu_data"
+            android:title="Riwayat Scan" />
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_menu_about"
             android:title="About" />
