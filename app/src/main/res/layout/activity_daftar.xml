@@ -17,25 +17,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="8dp"
+            android:theme="@style/TextLabel"
+            >
             <EditText
                 android:id="@+id/txtNama"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nama Lengkap" />
+                android:hint="Nama Lengkap"
+                android:textColor="#FFFFFFFF"
+                />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="8dp"
+            android:theme="@style/TextLabel">
             <EditText
                 android:id="@+id/txtNIM"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:hint="NIM" />
+                android:hint="NIM"
+                android:textColor="#FFFFFFFF"
+                />
         </android.support.design.widget.TextInputLayout>
 
         <TextView
@@ -51,7 +58,7 @@
             android:background="@android:drawable/btn_dropdown"
             android:spinnerMode="dropdown" />
 
-        <android.support.v7.widget.AppCompatButton
+        <Button
             android:id="@+id/daftar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -62,6 +69,7 @@
             android:onClick="daftarklik"
             android:textColor="@android:color/white"
             android:text="DAFTAR" />
+
 
     </LinearLayout>
 

@@ -35,6 +35,9 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.BeepManager;
 import com.journeyapps.barcodescanner.BarcodeCallback;
@@ -51,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.amirs.JSON;
+import io.fabric.sdk.android.Fabric;
 
 public class ContinuousActivity extends AppCompatActivity {
     TelephonyManager telephonyManager;
@@ -108,6 +112,7 @@ public class ContinuousActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_continuous);
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
@@ -268,6 +273,16 @@ public class ContinuousActivity extends AppCompatActivity {
                             alertDialog.show();
                             imageView.setBackgroundColor(Color.rgb(255, 0, 0));
                         }
+
+                        // TODO: Use your own attributes to track content views in your app
+                        Answers.getInstance().logContentView(new ContentViewEvent()
+                                .putContentName("Scan Baru")
+                                .putContentType("Scanner")
+                                .putContentId("1")
+                                .putCustomAttribute("NIM QR CODE", nimnya)
+                                .putCustomAttribute("BERHASIL", String.valueOf(berhasil))
+                                .putCustomAttribute("OPERATOR", getUUID()));
+
                     }
                 },
                 new Response.ErrorListener() {

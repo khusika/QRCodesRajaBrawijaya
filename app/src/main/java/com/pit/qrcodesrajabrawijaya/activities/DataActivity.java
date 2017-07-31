@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.opencsv.CSVWriter;
 import com.pit.qrcodesrajabrawijaya.Absensi;
 import com.pit.qrcodesrajabrawijaya.DatabaseHandler;
@@ -29,6 +30,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.fabric.sdk.android.Fabric;
 
 public class DataActivity extends AppCompatActivity {
 
@@ -43,6 +46,7 @@ public class DataActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_data);
 
         ListView lv = (ListView) findViewById(R.id.lvAbsen);

@@ -35,6 +35,9 @@
         <activity
             android:name="com.pit.qrcodesrajabrawijaya.DaftarActivity"
             android:theme="@style/AppTheme2" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="8561da09268002ee5405947bde6a0837a3c10019" />
     </application>
 
 </manifest>

@@ -9,6 +9,6 @@
     <string name="data_title">Riwayat Scan</string>
     <string name="scan_title">Scan Penugasan</string>
 
-    <string name="text_about">QR Codes Raja Brawijaya adalah aplikasi berbasis android yang digunakan untuk memindai kode pada lembar penugasan mahasiswa baru.</string>
+    <string name="text_about">RAJApps adalah aplikasi berbasis android yang digunakan untuk memindai kode pada lembar penugasan mahasiswa baru. </string>
 
 </resources>

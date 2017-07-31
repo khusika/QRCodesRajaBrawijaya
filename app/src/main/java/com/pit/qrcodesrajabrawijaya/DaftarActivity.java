@@ -28,6 +28,9 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -35,6 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.amirs.JSON;
+import io.fabric.sdk.android.Fabric;
 
 public class DaftarActivity extends AppCompatActivity {
 
@@ -44,11 +48,10 @@ public class DaftarActivity extends AppCompatActivity {
 
     private static final String REGISTER_URL = "http://rajabrawijaya.ub.ac.id/api/daftar";
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_daftar);
 
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -97,8 +100,19 @@ public class DaftarActivity extends AppCompatActivity {
                         boolean berhasil = json.key("berhasil").booleanValue();
 
                         if (berhasil){
+                            Answers.getInstance().logContentView(new ContentViewEvent()
+                                    .putContentName("Pendaftaran Baru")
+                                    .putContentType("Registrasi")
+                                    .putContentId("2")
+                                    .putCustomAttribute("NAMA", txtNAMA.getText().toString())
+                                    .putCustomAttribute("NIM", txtNIM.getText().toString())
+                                    .putCustomAttribute("DIVISI", spnDivisi.getSelectedItem().toString())
+                                    .putCustomAttribute("MODEL", Build.MANUFACTURER + " " +Build.MODEL)
+                                    .putCustomAttribute("VERSI", Build.VERSION.RELEASE));
+
+
                             AlertDialog alertDialog = new AlertDialog.Builder(DaftarActivity.this).create();
-                            alertDialog.setTitle("Suskes");
+                            alertDialog.setTitle("Sukses");
                             alertDialog.setMessage(json.key("pesan").stringValue());
                             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
                                     new DialogInterface.OnClickListener() {
