@@ -15,6 +15,10 @@
             android:icon="@drawable/ic_menu_data"
             android:title="Riwayat Scan" />
         <item
+            android:id="@+id/nav_data_mahasiswa"
+            android:icon="@drawable/ic_menu_data_mahasiswa"
+            android:title="Data Mahasiswa" />
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_menu_about"
             android:title="About" />
