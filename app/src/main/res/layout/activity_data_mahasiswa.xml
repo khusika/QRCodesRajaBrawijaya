@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/activity_data_mahasiswa"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/side_nav_bar"
     tools:context="com.pit.qrcodesrajabrawijaya.DataMahasiswaActivity">
 
@@ -17,4 +15,51 @@
         android:elevation="4dp"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-</LinearLayout>
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/data_mahasiswa"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/buttonsLayout"
+        android:layout_marginTop="35dp"
+        android:layout_alignParentTop="true">
+
+    </com.journeyapps.barcodescanner.DecoratedBarcodeView>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/buttonsLayout"
+        android:layout_toLeftOf="@+id/centerHorizont">
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/centerHorizont" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/buttonsLayout"
+        android:id="@+id/dataMahasiswa" />
+
+    <TextView
+        android:id="@+id/txtHasilData"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/dataMahasiswa"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:textColor="@android:color/white"
+        android:text="HASIL"
+        android:textSize="17sp"
+        android:gravity="center"
+        />
+
+</RelativeLayout>
