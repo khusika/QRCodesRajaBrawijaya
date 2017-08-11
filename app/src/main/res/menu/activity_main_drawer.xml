@@ -9,15 +9,11 @@
         <item
             android:id="@+id/nav_scan"
             android:icon="@drawable/ic_menu_scan"
-            android:title="Scan Penugasan" />
+            android:title="Scan QR Code" />
         <item
             android:id="@+id/nav_data"
             android:icon="@drawable/ic_menu_data"
             android:title="Riwayat Scan" />
-        <item
-            android:id="@+id/nav_data_mahasiswa"
-            android:icon="@drawable/ic_menu_data_mahasiswa"
-            android:title="Data Mahasiswa" />
         <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_menu_about"

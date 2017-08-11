@@ -63,7 +63,7 @@ public class DaftarActivity extends AppCompatActivity {
         //get the spinner from the xml.
         Spinner dropdown = (Spinner)findViewById(R.id.spnDivisi);
         //create a list of items for the spinner.
-        String[] items = new String[]{"SPV","KESTARI","PIT"};
+        String[] items = new String[]{"SPV","KESTARI", "KESEHATAN", "PIT"};
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
         //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);

@@ -60,7 +60,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:textColor="@android:color/white"
-        android:text="HASIL"
+        android:text="-"
         android:textSize="17sp"
         android:gravity="center"
         />

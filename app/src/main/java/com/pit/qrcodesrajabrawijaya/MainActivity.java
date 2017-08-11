@@ -141,13 +141,6 @@ public class MainActivity extends AppCompatActivity
                 }
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return false;
-            case R.id.nav_data_mahasiswa:
-                if(!menuItem.isChecked()) {
-                    menuItem.setChecked(false);
-                    startActivity(new Intent(this, DataMahasiswaActivity.class));
-                }
-                drawerLayout.closeDrawer(GravityCompat.START);
-                return false;
             case R.id.nav_about:
                 if(!menuItem.isChecked()) {
                     menuItem.setChecked(false);

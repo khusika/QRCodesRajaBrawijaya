@@ -246,17 +246,26 @@ public class ContinuousActivity extends AppCompatActivity {
                         boolean berhasil = json.key("berhasil").booleanValue();
 
                         if (berhasil){
+                            int kode = json.key("kode").intValue();
+                            if (kode == 1) {
+                                AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
+                                alertDialog.setTitle("SCAN BERHASIL");
+                                alertDialog.setMessage(json.key("pesan").stringValue());
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
 
-                            AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
-                            alertDialog.setTitle("SCAN BERHASIL");
-                            alertDialog.setMessage(json.key("pesan").stringValue());
-                            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
+                                            }
+                                        });
+                                alertDialog.show();
+                            }
+                            else if (kode == 2){
+                                Intent intent = new Intent(ContinuousActivity.this, DataMahasiswaActivity.class);
+                                intent.putExtra("mahasiswa", json.key("mahasiswa").stringValue());
+                                intent.putExtra("kesehatan", json.key("kesehatan").stringValue());
+                                startActivity(intent);
+                            }
 
-                                        }
-                                    });
-                            alertDialog.show();
                         }
                         else {
                             loadingDialog.dismiss();
@@ -294,7 +303,7 @@ public class ContinuousActivity extends AppCompatActivity {
                         if (error instanceof NetworkError) {
                             message = "Tidak bisa terhubung ke server. Cek koneksi internet kamu! (1)";
                         } else if (error instanceof ServerError) {
-                            message = "Terjadi kesalahan server. Hubungi anak PIT & coba lagi nanti!";
+                            message = "Format QR Code salah!";
                         } else if (error instanceof AuthFailureError) {
                             message = "Tidak bisa terhubung ke server. Cek koneksi internet kamu! (2)";
                         } else if (error instanceof ParseError) {
