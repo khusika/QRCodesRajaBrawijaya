@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity
                                 lblNamaOP.setText(json.key("user").key("nama").stringValue());
                                 lblNIMOP.setText(json.key("user").key("NIM").stringValue());
                                 lblDivisiOP.setText(json.key("user").key("divisi").stringValue());
-                                lblStatusOP.setText("Ready to scan.");
+                                lblStatusOP.setText("READY TO SCAN");
                                 lblStatus.setVisibility(View.INVISIBLE);
                                 return;
 
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity
                                 lblNamaOP.setText(json.key("user").key("nama").stringValue());
                                 lblNIMOP.setText(json.key("user").key("NIM").stringValue());
                                 lblDivisiOP.setText(json.key("user").key("divisi").stringValue());
-                                lblStatusOP.setText("-");
+                                lblStatusOP.setVisibility(View.INVISIBLE);
                                 lblStatus.setText("USER BELUM AKTIF!");
                                 return;
 

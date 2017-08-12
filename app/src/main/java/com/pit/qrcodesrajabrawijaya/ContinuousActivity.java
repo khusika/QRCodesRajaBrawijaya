@@ -283,7 +283,6 @@ public class ContinuousActivity extends AppCompatActivity {
                             imageView.setBackgroundColor(Color.rgb(255, 0, 0));
                         }
 
-                        // TODO: Use your own attributes to track content views in your app
                         Answers.getInstance().logContentView(new ContentViewEvent()
                                 .putContentName("Scan Baru")
                                 .putContentType("Scanner")

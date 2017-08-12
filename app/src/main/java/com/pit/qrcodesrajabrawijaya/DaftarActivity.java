@@ -60,14 +60,9 @@ public class DaftarActivity extends AppCompatActivity {
         txtNIM = (EditText) findViewById(R.id.txtNIM);
         spnDivisi = (Spinner) findViewById(R.id.spnDivisi);
 
-        //get the spinner from the xml.
         Spinner dropdown = (Spinner)findViewById(R.id.spnDivisi);
-        //create a list of items for the spinner.
-        String[] items = new String[]{"SPV","KESTARI", "KESEHATAN", "PIT"};
-        //create an adapter to describe how the items are displayed, adapters are used in several places in android.
-        //There are multiple variations of this, but this is the basic variant.
+        String[] items = new String[]{"INTI", "KESTARI", "KESEHATAN", "PIT", "SPV"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
-        //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
     }
 
@@ -84,16 +79,13 @@ public class DaftarActivity extends AppCompatActivity {
     private void daftarUser(){
 
         final ProgressDialog loadingDialog = new ProgressDialog(DaftarActivity.this);
-        //set message of the dialog
         loadingDialog.setMessage("Mendaftarkan ke server...");
-        //show dialog
         loadingDialog.show();
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, REGISTER_URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        //Toast.makeText(DaftarActivity.this,response,Toast.LENGTH_LONG).show();
                         loadingDialog.dismiss();
 
                         JSON json = new JSON(response);
