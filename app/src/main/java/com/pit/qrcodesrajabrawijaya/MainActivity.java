@@ -130,10 +130,14 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_scan:
                 if(!menuItem.isChecked()) {
                     menuItem.setChecked(false);
-                    startActivity(new Intent(this, ContinuousActivity.class));
+                    //startActivity(new Intent(this, ContinuousActivity.class));
+                    Intent intent = new Intent(this, ContinuousActivity.class);
+                    intent.putExtra("divisi", lblDivisiOP.getText().toString());
+                    startActivity(intent);
                 }
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return false;
+
             case R.id.nav_data:
                 if(!menuItem.isChecked()) {
                     menuItem.setChecked(false);

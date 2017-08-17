@@ -20,7 +20,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -57,9 +56,9 @@ import java.util.Map;
 import eu.amirs.JSON;
 import io.fabric.sdk.android.Fabric;
 
-public class ContinuousActivity extends AppCompatActivity {
+public class KesehatanActivity extends AppCompatActivity {
     TelephonyManager telephonyManager;
-    private static final String TAG = ContinuousActivity.class.getSimpleName();
+    private static final String TAG = KesehatanActivity.class.getSimpleName();
     private int counter = 1;
     private DecoratedBarcodeView barcodeView;
     private BeepManager beepManager;
@@ -68,12 +67,11 @@ public class ContinuousActivity extends AppCompatActivity {
     private Intent i;
 
     private static final int REQUEST_RUNTIME_PERMISSION = 321;
-    private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/tambah";
+    private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/kesehatan";
     DatabaseHandler db = new DatabaseHandler(this);
 
     ImageView imageView;
     TextView textView;
-    Button btnKesehatan;
 
     private BarcodeCallback callback = new BarcodeCallback() {
         @Override
@@ -115,45 +113,30 @@ public class ContinuousActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
-        setContentView(R.layout.activity_continuous);
+        setContentView(R.layout.activity_kesehatan);
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
-        imageView = (ImageView) findViewById(R.id.barcodePreview);
-        textView = (TextView) findViewById(R.id.txtHasil);
-        btnKesehatan = (Button) findViewById(R.id.btnKesehatan);
+        imageView = (ImageView) findViewById(R.id.barcodePreview2);
+        textView = (TextView) findViewById(R.id.txtHasil2);
 
-        if (CheckPermission(ContinuousActivity.this, Manifest.permission.CAMERA)) {
+        if (CheckPermission(KesehatanActivity.this, Manifest.permission.CAMERA)) {
 
         } else {
             // you do not have permission go request runtime permissions
-            RequestPermission(ContinuousActivity.this, Manifest.permission.CAMERA, REQUEST_RUNTIME_PERMISSION);
+            RequestPermission(KesehatanActivity.this, Manifest.permission.CAMERA, REQUEST_RUNTIME_PERMISSION);
         }
 
-        barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_scanner);
+        barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_scanner2);
         barcodeView.decodeContinuous(callback);
-        barcodeView.setStatusText("Arahkan QR Code ke garis merah untuk mulai scan.");
-
-        btnKesehatan.setVisibility(View.INVISIBLE);
-
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            String divisinya = bundle.getString("divisi");
-            if (divisinya.equalsIgnoreCase("INTI") || divisinya.equalsIgnoreCase("PIT")){
-                btnKesehatan.setVisibility(View.VISIBLE);
-            }
-
-
-        }
-
-
+        barcodeView.setStatusText("Arahkan QR Code Nametag ke garis merah untuk mulai scan.");
 
         beepManager = new BeepManager(this);
-        toolbar = (Toolbar) findViewById(R.id.scan_toolbar);
+        toolbar = (Toolbar) findViewById(R.id.scan_toolbar2);
         setupToolbar();
     }
 
     private void setupToolbar(){
-        toolbar.setTitle(getString(R.string.scan_title));
+        toolbar.setTitle("Scan Data Kesehatan");
         setSupportActionBar(toolbar);
         if (getSupportActionBar() !=null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -162,7 +145,7 @@ public class ContinuousActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                i = new Intent(ContinuousActivity.this, MainActivity.class);
+                i = new Intent(KesehatanActivity.this, MainActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
             }
@@ -227,7 +210,7 @@ public class ContinuousActivity extends AppCompatActivity {
                     // you have permission go ahead
                     //authUser();
                 } else {
-                    AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
+                    AlertDialog alertDialog = new AlertDialog.Builder(KesehatanActivity.this).create();
                     alertDialog.setTitle("Error");
                     alertDialog.setMessage("Kamu harus mengizinkan aplikasi ini!");
                     alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
@@ -246,7 +229,7 @@ public class ContinuousActivity extends AppCompatActivity {
 
     private void kirimData(final String nimnya){
 
-        final ProgressDialog loadingDialog = new ProgressDialog(ContinuousActivity.this);
+        final ProgressDialog loadingDialog = new ProgressDialog(KesehatanActivity.this);
         //set message of the dialog
         loadingDialog.setMessage("Mengirimkan ke server...");
         //show dialog
@@ -263,31 +246,15 @@ public class ContinuousActivity extends AppCompatActivity {
                         boolean berhasil = json.key("berhasil").booleanValue();
 
                         if (berhasil){
-                            int kode = json.key("kode").intValue();
-                            if (kode == 1) {
-                                AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
-                                alertDialog.setTitle("SCAN BERHASIL");
-                                alertDialog.setMessage(json.key("pesan").stringValue());
-                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-
-                                            }
-                                        });
-                                alertDialog.show();
-                            }
-                            else if (kode == 2){
-                                Intent intent = new Intent(ContinuousActivity.this, DataMahasiswaActivity.class);
-                                intent.putExtra("mahasiswa", json.key("mahasiswa").stringValue());
-                                intent.putExtra("kesehatan", json.key("kesehatan").stringValue());
-                                startActivity(intent);
-                            }
-
+                            Intent intent = new Intent(KesehatanActivity.this, DataMahasiswaActivity.class);
+                            intent.putExtra("mahasiswa", json.key("mahasiswa").stringValue());
+                            intent.putExtra("kesehatan", json.key("kesehatan").stringValue());
+                            startActivity(intent);
                         }
                         else {
                             loadingDialog.dismiss();
 
-                            AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
+                            AlertDialog alertDialog = new AlertDialog.Builder(KesehatanActivity.this).create();
                             alertDialog.setTitle("Scan Gagal!");
                             alertDialog.setMessage(json.key("pesan").stringValue());
                             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
@@ -330,7 +297,7 @@ public class ContinuousActivity extends AppCompatActivity {
                             message = "Koneksi timeout! Cek koneksi internet kamu!";
                         }
 
-                        AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
+                        AlertDialog alertDialog = new AlertDialog.Builder(KesehatanActivity.this).create();
                         alertDialog.setTitle("Error!");
                         alertDialog.setMessage(message);
                         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",

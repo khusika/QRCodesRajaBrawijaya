@@ -10,6 +10,6 @@
     <string name="scan_title">Scan QR Code</string>
     <string name="data_mahasiswa_title">Data Mahasiswa</string>
 
-    <string name="text_about">RAJApps adalah aplikasi berbasis android yang digunakan untuk memindai kode pada lembar penugasan mahasiswa baru. </string>
+    <string name="text_about">RAJApps adalah aplikasi berbasis android yang digunakan untuk memindai kode QR pada lembar penugasan dan nametag mahasiswa baru. </string>
 
 </resources>

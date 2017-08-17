@@ -33,6 +33,9 @@
             android:name="com.pit.qrcodesrajabrawijaya.ContinuousActivity"
             android:theme="@style/AppTheme2" />
         <activity
+            android:name="com.pit.qrcodesrajabrawijaya.KesehatanActivity"
+            android:theme="@style/AppTheme2" />
+        <activity
             android:name="com.pit.qrcodesrajabrawijaya.DaftarActivity"
             android:theme="@style/AppTheme2" />
         <activity

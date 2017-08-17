@@ -61,7 +61,7 @@ public class DaftarActivity extends AppCompatActivity {
         spnDivisi = (Spinner) findViewById(R.id.spnDivisi);
 
         Spinner dropdown = (Spinner)findViewById(R.id.spnDivisi);
-        String[] items = new String[]{"INTI", "KESTARI", "KESEHATAN", "PIT", "SPV"};
+        String[] items = new String[]{"PIT", "KESTARI", "SPV", "KESEHATAN", "INTI"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
         dropdown.setAdapter(adapter);
     }

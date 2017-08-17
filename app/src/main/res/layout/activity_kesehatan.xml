@@ -5,11 +5,11 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/side_nav_bar"
-    tools:context="com.pit.qrcodesrajabrawijaya.ContinuousActivity">
+    tools:context="com.pit.qrcodesrajabrawijaya.KesehatanActivity">
 >
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/scan_toolbar"
+        android:id="@+id/scan_toolbar2"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/side_nav_bar"
@@ -17,10 +17,10 @@
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <com.journeyapps.barcodescanner.DecoratedBarcodeView
-        android:id="@+id/barcode_scanner"
+        android:id="@+id/barcode_scanner2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_above="@+id/buttonsLayout"
+        android:layout_above="@+id/buttonsLayout2"
         android:layout_marginTop="35dp"
         android:layout_alignParentTop="true">
 
@@ -31,8 +31,8 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_alignParentBottom="true"
-        android:id="@+id/buttonsLayout"
-        android:layout_toLeftOf="@+id/centerHorizont">
+        android:id="@+id/buttonsLayout2"
+        android:layout_toLeftOf="@+id/centerHorizont2">
 
     </LinearLayout>
 
@@ -40,7 +40,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
-        android:id="@+id/centerHorizont" />
+        android:id="@+id/centerHorizont2" />
 
 
 
@@ -49,33 +49,20 @@
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/buttonsLayout"
-        android:id="@+id/barcodePreview" />
+        android:layout_alignTop="@id/buttonsLayout2"
+        android:id="@+id/barcodePreview2" />
 
     <TextView
-        android:id="@+id/txtHasil"
+        android:id="@+id/txtHasil2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignTop="@id/barcodePreview"
+        android:layout_alignTop="@id/barcodePreview2"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:textColor="@android:color/white"
         android:text="-"
         android:textSize="17sp"
         android:gravity="center"
-        />
-
-    <Button
-        android:id="@+id/btnKesehatan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SCAN
-DATA MABA"
-        android:gravity="center"
-        android:layout_alignTop="@+id/txtHasil"
-        android:layout_alignBottom="@+id/txtHasil"
-        android:visibility="invisible"
-        android:onClick="keKesehatan"
         />
 
 </RelativeLayout>
