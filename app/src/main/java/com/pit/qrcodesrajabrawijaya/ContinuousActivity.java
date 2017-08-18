@@ -69,6 +69,7 @@ public class ContinuousActivity extends AppCompatActivity {
 
     private static final int REQUEST_RUNTIME_PERMISSION = 321;
     private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/tambah";
+    private static final String CIDUK_URL = "http://rajabrawijaya.ub.ac.id/api/ciduk";
     DatabaseHandler db = new DatabaseHandler(this);
 
     ImageView imageView;
@@ -253,6 +254,154 @@ public class ContinuousActivity extends AppCompatActivity {
         loadingDialog.show();
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, KIRIM_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        //Toast.makeText(DaftarActivity.this,response,Toast.LENGTH_LONG).show();
+                        loadingDialog.dismiss();
+
+                        JSON json = new JSON(response);
+                        boolean berhasil = json.key("berhasil").booleanValue();
+
+                        if (berhasil){
+                            int kode = json.key("kode").intValue();
+                            if (kode == 1) {
+                                AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
+                                alertDialog.setTitle("SCAN BERHASIL");
+                                alertDialog.setMessage(json.key("pesan").stringValue());
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        });
+                                alertDialog.show();
+                            }
+                            else if (kode == 2){
+                                Intent intent = new Intent(ContinuousActivity.this, DataMahasiswaActivity.class);
+                                intent.putExtra("mahasiswa", json.key("mahasiswa").stringValue());
+                                intent.putExtra("kesehatan", json.key("kesehatan").stringValue());
+                                startActivity(intent);
+                            }
+
+                            else if (kode == 3){
+
+                                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        switch (which){
+                                            case DialogInterface.BUTTON_POSITIVE:
+                                                ciduk(nimnya);
+                                                break;
+
+                                            case DialogInterface.BUTTON_NEGATIVE:
+                                                //No button clicked
+                                                break;
+                                        }
+                                    }
+                                };
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(ContinuousActivity.this);
+                                builder.setMessage(json.key("pesan").stringValue()+ ", Ada Indikasi Kecurangan Untuk Tugas Ini?").setPositiveButton("Ada", dialogClickListener)
+                                        .setNegativeButton("Tidak", dialogClickListener).show();
+
+//                                AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
+//                                alertDialog.setTitle("SCAN BERHASIL");
+//                                alertDialog.setMessage(json.key("pesan").stringValue()+ "Ada Indikasi Kecurangan Untuk Tugas Ini?");
+//                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
+//                                        new DialogInterface.OnClickListener() {
+//                                            public void onClick(DialogInterface dialog, int which) {
+//
+//                                            }
+//                                        });
+//                                alertDialog.show();
+                            }
+
+                        }
+                        else {
+                            loadingDialog.dismiss();
+
+                            AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
+                            alertDialog.setTitle("Scan Gagal!");
+                            alertDialog.setMessage(json.key("pesan").stringValue());
+                            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                        }
+                                    });
+                            alertDialog.show();
+                            imageView.setBackgroundColor(Color.rgb(255, 0, 0));
+                        }
+
+                        Answers.getInstance().logContentView(new ContentViewEvent()
+                                .putContentName("Scan Baru")
+                                .putContentType("Scanner")
+                                .putContentId("1")
+                                .putCustomAttribute("NIM QR CODE", nimnya)
+                                .putCustomAttribute("BERHASIL", String.valueOf(berhasil))
+                                .putCustomAttribute("OPERATOR", getUUID()));
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        loadingDialog.dismiss();
+
+                        String message = null;
+                        if (error instanceof NetworkError) {
+                            message = "Tidak bisa terhubung ke server. Cek koneksi internet kamu! (1)";
+                        } else if (error instanceof ServerError) {
+                            message = "Format QR Code salah!";
+                        } else if (error instanceof AuthFailureError) {
+                            message = "Tidak bisa terhubung ke server. Cek koneksi internet kamu! (2)";
+                        } else if (error instanceof ParseError) {
+                            message = "Terjadi kesalahan parsing. Hubungi anak PIT & coba lagi nanti!";
+                        } else if (error instanceof NoConnectionError) {
+                            message = "Tidak ada koneksi internet. Cek koneksi internet kamu!";
+                        } else if (error instanceof TimeoutError) {
+                            message = "Koneksi timeout! Cek koneksi internet kamu!";
+                        }
+
+                        AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
+                        alertDialog.setTitle("Error!");
+                        alertDialog.setMessage(message);
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        finish();
+                                        //System.exit(0);
+                                    }
+                                });
+                        alertDialog.show();
+                        imageView.setBackgroundColor(Color.rgb(255, 0, 0));
+                    }
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("uuid", getUUID());
+                params.put("NIM", nimnya);
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
+    }
+
+
+    private void ciduk(final String nimnya){
+
+        final ProgressDialog loadingDialog = new ProgressDialog(ContinuousActivity.this);
+        //set message of the dialog
+        loadingDialog.setMessage("Mengirimkan ke server...");
+        //show dialog
+        loadingDialog.show();
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, CIDUK_URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

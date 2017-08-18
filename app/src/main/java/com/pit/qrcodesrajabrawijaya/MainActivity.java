@@ -131,9 +131,14 @@ public class MainActivity extends AppCompatActivity
                 if(!menuItem.isChecked()) {
                     menuItem.setChecked(false);
                     //startActivity(new Intent(this, ContinuousActivity.class));
-                    Intent intent = new Intent(this, ContinuousActivity.class);
-                    intent.putExtra("divisi", lblDivisiOP.getText().toString());
-                    startActivity(intent);
+                    if (lblDivisiOP.getText().toString() == "KESEHATAN") {
+                        startActivity(new Intent(this, KesehatanActivity.class));
+                    }
+                    else {
+                        Intent intent = new Intent(this, ContinuousActivity.class);
+                        intent.putExtra("divisi", lblDivisiOP.getText().toString());
+                        startActivity(intent);
+                    }
                 }
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return false;
