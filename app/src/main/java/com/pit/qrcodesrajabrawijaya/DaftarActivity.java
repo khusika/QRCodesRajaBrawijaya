@@ -80,6 +80,8 @@ public class DaftarActivity extends AppCompatActivity {
 
         final ProgressDialog loadingDialog = new ProgressDialog(DaftarActivity.this);
         loadingDialog.setMessage("Mendaftarkan ke server...");
+        loadingDialog.setCancelable(false);
+        loadingDialog.setCanceledOnTouchOutside(false);
         loadingDialog.show();
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, REGISTER_URL,
@@ -160,6 +162,8 @@ public class DaftarActivity extends AppCompatActivity {
                                         //System.exit(0);
                                     }
                                 });
+                        alertDialog.setCancelable(false);
+                        alertDialog.setCanceledOnTouchOutside(false);
                         alertDialog.show();
                     }
                 }){
