@@ -20,8 +20,11 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -68,13 +71,15 @@ public class ContinuousActivity extends AppCompatActivity {
     private Intent i;
 
     private static final int REQUEST_RUNTIME_PERMISSION = 321;
-    private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/tambah";
+    private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/tugas";
     private static final String CIDUK_URL = "http://rajabrawijaya.ub.ac.id/api/ciduk";
     DatabaseHandler db = new DatabaseHandler(this);
 
     ImageView imageView;
     TextView textView;
     Button btnKesehatan;
+    EditText txtKelompok;
+    Spinner spnVenue;
 
     private BarcodeCallback callback = new BarcodeCallback() {
         @Override
@@ -87,23 +92,45 @@ public class ContinuousActivity extends AppCompatActivity {
             //Added preview of scanned barcode
             //imageView.setImageBitmap(result.getBitmapWithResultPoints(Color.YELLOW));
 
-            if (counter % 2 == 0 ) {
-                imageView.setBackgroundColor(Color.rgb(0, 255, 0));
-            }
-            else {
-                imageView.setBackgroundColor(Color.rgb(0, 0, 255));
-            }
+//            if (counter % 2 == 0 ) {
+//                imageView.setBackgroundColor(Color.rgb(0, 255, 0));
+//            }
+//            else {
+//                imageView.setBackgroundColor(Color.rgb(0, 0, 255));
+//            }
 
             if(db.cekNim(result.getText()) == 0) {
                 db.addAbsensi(new Absensi(result.getText(), getTanggal()));
             }
 
-            kirimData(result.getText());
-            lastText = result.getText();
-            beepManager.playBeepSoundAndVibrate();
+            String kelompok = txtKelompok.getText().toString();
+            String venue = spnVenue.getSelectedItem().toString();
+            if (kelompok != null && kelompok.equals("")){
+                AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage("Data absensi belum lengkap!");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //finish();
+                                //System.exit(0);
+                            }
+                        });
+                alertDialog.setCancelable(false);
+                alertDialog.setCanceledOnTouchOutside(false);
+                alertDialog.show();
+            }
+            else {
+                kirimData(result.getText(), kelompok, venue);
+                beepManager.playBeepSoundAndVibrate();
+            }
 
-            textView.setText(result.getText());
-            counter++;
+            lastText = result.getText();
+
+
+
+            //textView.setText(result.getText());
+            //counter++;
 
         }
 
@@ -123,6 +150,14 @@ public class ContinuousActivity extends AppCompatActivity {
         textView = (TextView) findViewById(R.id.txtHasil);
         btnKesehatan = (Button) findViewById(R.id.btnKesehatan);
 
+        txtKelompok = (EditText) findViewById(R.id.txtKelompok);
+        spnVenue = (Spinner) findViewById(R.id.spnVenue);
+
+        Spinner dropdown = (Spinner)findViewById(R.id.spnVenue);
+        String[] items = new String[]{"GOR Pertamina", "Lapangan Rektorat", "Samantha Krida", "Graha Medika (Protestan)", "Aula FTP (Katholik)", "IKA UB (Hindu)", "Rumah Pintar (Buddha & Konghucu)"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        dropdown.setAdapter(adapter);
+
         if (CheckPermission(ContinuousActivity.this, Manifest.permission.CAMERA)) {
 
         } else {
@@ -134,17 +169,17 @@ public class ContinuousActivity extends AppCompatActivity {
         barcodeView.decodeContinuous(callback);
         barcodeView.setStatusText("Arahkan QR Code ke garis merah untuk mulai scan.");
 
-        btnKesehatan.setVisibility(View.INVISIBLE);
-
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            String divisinya = bundle.getString("divisi");
-            if (divisinya.equalsIgnoreCase("INTI") || divisinya.equalsIgnoreCase("PIT")){
-                btnKesehatan.setVisibility(View.VISIBLE);
-            }
-
-
-        }
+//        btnKesehatan.setVisibility(View.INVISIBLE);
+//
+//        Bundle bundle = getIntent().getExtras();
+//        if (bundle != null) {
+//            String divisinya = bundle.getString("divisi");
+//            if (divisinya.equalsIgnoreCase("INTI") || divisinya.equalsIgnoreCase("PIT")){
+//                btnKesehatan.setVisibility(View.VISIBLE);
+//            }
+//
+//
+//        }
 
 
 
@@ -238,6 +273,8 @@ public class ContinuousActivity extends AppCompatActivity {
                                     //System.exit(0);
                                 }
                             });
+                    alertDialog.setCancelable(false);
+                    alertDialog.setCanceledOnTouchOutside(false);
                     alertDialog.show();
                 }
                 return;
@@ -245,22 +282,24 @@ public class ContinuousActivity extends AppCompatActivity {
         }
     }
 
-    private void kirimData(final String nimnya){
+    private void kirimData(final String nimnya, final String kelompok, final String venue){
 
         final ProgressDialog loadingDialog = new ProgressDialog(ContinuousActivity.this);
         //set message of the dialog
         loadingDialog.setMessage("Mengirimkan ke server...");
+        loadingDialog.setCanceledOnTouchOutside(false);
+        loadingDialog.setCancelable(false);
         //show dialog
         loadingDialog.show();
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, KIRIM_URL,
                 new Response.Listener<String>() {
                     @Override
-                    public void onResponse(String response) {
+                    public void onResponse(final String response) {
                         //Toast.makeText(DaftarActivity.this,response,Toast.LENGTH_LONG).show();
                         loadingDialog.dismiss();
 
-                        JSON json = new JSON(response);
+                        final JSON json = new JSON(response);
                         boolean berhasil = json.key("berhasil").booleanValue();
 
                         if (berhasil){
@@ -268,7 +307,7 @@ public class ContinuousActivity extends AppCompatActivity {
                             if (kode == 1) {
                                 AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
                                 alertDialog.setTitle("SCAN BERHASIL");
-                                alertDialog.setMessage(json.key("pesan").stringValue());
+                                alertDialog.setMessage(json.key("pesan").stringValue()+"\n No Absensi : "+txtKelompok.getText().toString()+"\n Venue : "+spnVenue.getSelectedItem().toString());
                                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
@@ -291,18 +330,31 @@ public class ContinuousActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         switch (which){
                                             case DialogInterface.BUTTON_POSITIVE:
-                                                ciduk(nimnya);
+                                                //iya
+                                                AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
+                                                alertDialog.setTitle("SCAN BERHASIL");
+                                                alertDialog.setMessage(json.key("pesan").stringValue()+"\n No Absensi : "+txtKelompok.getText().toString()+"\n Venue : "+spnVenue.getSelectedItem().toString());
+                                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
+                                                        new DialogInterface.OnClickListener() {
+                                                            public void onClick(DialogInterface dialog, int which) {
+
+                                                            }
+                                                        });
+                                                alertDialog.show();
+
                                                 break;
 
                                             case DialogInterface.BUTTON_NEGATIVE:
-                                                //No button clicked
+                                                //tidak
+                                                revisi(nimnya);
                                                 break;
                                         }
                                     }
                                 };
 
                                 AlertDialog.Builder builder = new AlertDialog.Builder(ContinuousActivity.this);
-                                builder.setMessage(json.key("pesan").stringValue()+ ", Ada Indikasi Kecurangan Untuk Tugas Ini?").setPositiveButton("Ada", dialogClickListener)
+                                builder.setCancelable(false);
+                                builder.setMessage(json.key("pesan").stringValue()+ "\nApakah benar uang ditugas ini Rp. "+ json.key("nominal").stringValue()+"?").setPositiveButton("Iya", dialogClickListener)
                                         .setNegativeButton("Tidak", dialogClickListener).show();
 
 //                                AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
@@ -331,7 +383,7 @@ public class ContinuousActivity extends AppCompatActivity {
                                         }
                                     });
                             alertDialog.show();
-                            imageView.setBackgroundColor(Color.rgb(255, 0, 0));
+                            //imageView.setBackgroundColor(Color.rgb(255, 0, 0));
                         }
 
                         Answers.getInstance().logContentView(new ContentViewEvent()
@@ -374,8 +426,10 @@ public class ContinuousActivity extends AppCompatActivity {
                                         //System.exit(0);
                                     }
                                 });
+                        alertDialog.setCancelable(false);
+                        alertDialog.setCanceledOnTouchOutside(false);
                         alertDialog.show();
-                        imageView.setBackgroundColor(Color.rgb(255, 0, 0));
+                        //imageView.setBackgroundColor(Color.rgb(255, 0, 0));
                     }
                 }){
             @Override
@@ -383,6 +437,8 @@ public class ContinuousActivity extends AppCompatActivity {
                 Map<String,String> params = new HashMap<String, String>();
                 params.put("uuid", getUUID());
                 params.put("NIM", nimnya);
+                params.put("venue", venue);
+                params.put("kelompok", kelompok);
                 return params;
             }
 
@@ -392,12 +448,32 @@ public class ContinuousActivity extends AppCompatActivity {
         requestQueue.add(stringRequest);
     }
 
+    private void revisi(final String nimnya){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText text = new EditText(this);
 
-    private void ciduk(final String nimnya){
+        builder.setTitle("Revisi Uang").setMessage("Masukan uang yang benar").setView(text);
+        builder.setPositiveButton("Kirim", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface di, int i) {
+                final String uangbenar = text.getText().toString();
+                ciduk(nimnya, uangbenar);
+                //Log.e("DARI DIALOG", uangbenar);
+            }
+        });
+
+        builder.setCancelable(false);
+        builder.create().show();
+    }
+
+
+    private void ciduk(final String nimnya, final String uangbenar){
 
         final ProgressDialog loadingDialog = new ProgressDialog(ContinuousActivity.this);
         //set message of the dialog
         loadingDialog.setMessage("Mengirimkan ke server...");
+        loadingDialog.setCanceledOnTouchOutside(false);
+        loadingDialog.setCancelable(false);
         //show dialog
         loadingDialog.show();
 
@@ -415,8 +491,8 @@ public class ContinuousActivity extends AppCompatActivity {
                             int kode = json.key("kode").intValue();
                             if (kode == 1) {
                                 AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
-                                alertDialog.setTitle("SCAN BERHASIL");
-                                alertDialog.setMessage(json.key("pesan").stringValue());
+                                alertDialog.setTitle("BERHASIL");
+                                alertDialog.setMessage(json.key("pesan").stringValue()+"\n No Absensi : "+txtKelompok.getText().toString()+"\n Venue : "+spnVenue.getSelectedItem().toString());
                                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
@@ -437,7 +513,7 @@ public class ContinuousActivity extends AppCompatActivity {
                             loadingDialog.dismiss();
 
                             AlertDialog alertDialog = new AlertDialog.Builder(ContinuousActivity.this).create();
-                            alertDialog.setTitle("Scan Gagal!");
+                            alertDialog.setTitle("Gagal!");
                             alertDialog.setMessage(json.key("pesan").stringValue());
                             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
                                     new DialogInterface.OnClickListener() {
@@ -446,7 +522,7 @@ public class ContinuousActivity extends AppCompatActivity {
                                         }
                                     });
                             alertDialog.show();
-                            imageView.setBackgroundColor(Color.rgb(255, 0, 0));
+                            //imageView.setBackgroundColor(Color.rgb(255, 0, 0));
                         }
 
                         Answers.getInstance().logContentView(new ContentViewEvent()
@@ -489,8 +565,10 @@ public class ContinuousActivity extends AppCompatActivity {
                                         //System.exit(0);
                                     }
                                 });
+                        alertDialog.setCancelable(false);
+                        alertDialog.setCanceledOnTouchOutside(false);
                         alertDialog.show();
-                        imageView.setBackgroundColor(Color.rgb(255, 0, 0));
+                        //imageView.setBackgroundColor(Color.rgb(255, 0, 0));
                     }
                 }){
             @Override
@@ -498,6 +576,7 @@ public class ContinuousActivity extends AppCompatActivity {
                 Map<String,String> params = new HashMap<String, String>();
                 params.put("uuid", getUUID());
                 params.put("NIM", nimnya);
+                params.put("uangbaru", uangbenar);
                 return params;
             }
 

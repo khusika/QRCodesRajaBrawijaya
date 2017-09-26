@@ -131,10 +131,12 @@ public class MainActivity extends AppCompatActivity
                 if(!menuItem.isChecked()) {
                     menuItem.setChecked(false);
                     //startActivity(new Intent(this, ContinuousActivity.class));
-                    if (lblDivisiOP.getText().toString() == "KESEHATAN") {
+                    if (lblDivisiOP.getText().toString().equalsIgnoreCase("KESEHATAN")  ) {
                         startActivity(new Intent(this, KesehatanActivity.class));
+                        return false;
                     }
                     else {
+                        Log.e("test", lblDivisiOP.getText().toString());
                         Intent intent = new Intent(this, ContinuousActivity.class);
                         intent.putExtra("divisi", lblDivisiOP.getText().toString());
                         startActivity(intent);
@@ -185,6 +187,9 @@ public class MainActivity extends AppCompatActivity
         final ProgressDialog loadingDialog = new ProgressDialog(MainActivity.this);
         //set message of the dialog
         loadingDialog.setMessage("Menghubungkan ke server...");
+        loadingDialog.setCanceledOnTouchOutside(false);
+        loadingDialog.setCancelable(false);
+
         //show dialog
         loadingDialog.show();
 
@@ -265,6 +270,8 @@ public class MainActivity extends AppCompatActivity
                                         System.exit(0);
                                     }
                                 });
+                        alertDialog.setCancelable(false);
+                        alertDialog.setCanceledOnTouchOutside(false);
                         alertDialog.show();
                     }
                 });
@@ -310,6 +317,8 @@ public class MainActivity extends AppCompatActivity
                                     System.exit(0);
                                 }
                             });
+                    alertDialog.setCancelable(false);
+                    alertDialog.setCanceledOnTouchOutside(false);
                     alertDialog.show();
                 }
                 return;

@@ -65,7 +65,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
                         android:textColor="@android:color/white"
-                        android:text="Version 1.4"/>
+                        android:text="Version 1.5"/>
 
                     <TextView
                         android:layout_width="wrap_content"

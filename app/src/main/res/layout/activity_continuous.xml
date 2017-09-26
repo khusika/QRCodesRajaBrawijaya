@@ -49,6 +49,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:background="#fff"
         android:layout_alignTop="@id/buttonsLayout"
         android:id="@+id/barcodePreview" />
 
@@ -63,6 +64,7 @@
         android:text="-"
         android:textSize="17sp"
         android:gravity="center"
+        android:visibility="invisible"
         />
 
     <Button
@@ -77,5 +79,35 @@ DATA MABA"
         android:visibility="invisible"
         android:onClick="keKesehatan"
         />
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="8dp"
+        android:textColorHint="@color/colorPrimary"
+        android:theme="@style/AppTheme.NoActionBar"
+        android:layout_alignTop="@id/barcodePreview"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true">
+        <EditText
+            android:id="@+id/txtKelompok"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:hint="No Absensi"
+            />
+    </android.support.design.widget.TextInputLayout>
+
+
+    <Spinner
+        android:id="@+id/spnVenue"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:layout_alignTop="@id/barcodePreview"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"/>
+
 
 </RelativeLayout>

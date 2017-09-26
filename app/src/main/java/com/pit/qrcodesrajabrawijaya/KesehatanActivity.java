@@ -67,7 +67,7 @@ public class KesehatanActivity extends AppCompatActivity {
     private Intent i;
 
     private static final int REQUEST_RUNTIME_PERMISSION = 321;
-    private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/kesehatan";
+    private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/tugas";
     DatabaseHandler db = new DatabaseHandler(this);
 
     ImageView imageView;
@@ -232,6 +232,8 @@ public class KesehatanActivity extends AppCompatActivity {
         final ProgressDialog loadingDialog = new ProgressDialog(KesehatanActivity.this);
         //set message of the dialog
         loadingDialog.setMessage("Mengirimkan ke server...");
+        loadingDialog.setCanceledOnTouchOutside(false);
+        loadingDialog.setCancelable(false);
         //show dialog
         loadingDialog.show();
 
@@ -307,6 +309,8 @@ public class KesehatanActivity extends AppCompatActivity {
                                         //System.exit(0);
                                     }
                                 });
+                        alertDialog.setCancelable(false);
+                        alertDialog.setCanceledOnTouchOutside(false);
                         alertDialog.show();
                         imageView.setBackgroundColor(Color.rgb(255, 0, 0));
                     }
@@ -316,6 +320,8 @@ public class KesehatanActivity extends AppCompatActivity {
                 Map<String,String> params = new HashMap<String, String>();
                 params.put("uuid", getUUID());
                 params.put("NIM", nimnya);
+                params.put("venue", "KOSONG");
+                params.put("kelompok", "1");
                 return params;
             }
 
