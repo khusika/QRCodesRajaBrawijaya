@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,9 +18,13 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.text.InputType;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,6 +49,7 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
@@ -56,9 +62,9 @@ import java.util.Map;
 import eu.amirs.JSON;
 import io.fabric.sdk.android.Fabric;
 
-public class KesehatanActivity extends AppCompatActivity {
+public class GelangActivity extends AppCompatActivity {
     TelephonyManager telephonyManager;
-    private static final String TAG = KesehatanActivity.class.getSimpleName();
+    private static final String TAG = GelangActivity.class.getSimpleName();
     private int counter = 1;
     private DecoratedBarcodeView barcodeView;
     private BeepManager beepManager;
@@ -67,11 +73,44 @@ public class KesehatanActivity extends AppCompatActivity {
     private Intent i;
 
     private static final int REQUEST_RUNTIME_PERMISSION = 321;
-    private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/tugas";
+    private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/gelang";
     DatabaseHandler db = new DatabaseHandler(this);
 
     ImageView imageView;
-    TextView textView;
+    TextView textView, textNametag;
+    Button btnManual, btnManual2;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
+        setContentView(R.layout.activity_gelang);
+        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+
+        imageView = (ImageView) findViewById(R.id.barcodePreview2);
+        textView = (TextView) findViewById(R.id.txtHasil2);
+        textNametag = (TextView) findViewById(R.id.txtNametag);
+        btnManual = (Button) findViewById(R.id.btnManual);
+        btnManual2 = (Button) findViewById(R.id.btnManual2);
+
+        if (CheckPermission(GelangActivity.this, Manifest.permission.CAMERA)) {
+
+        } else {
+            // you do not have permission go request runtime permissions
+            RequestPermission(GelangActivity.this, Manifest.permission.CAMERA, REQUEST_RUNTIME_PERMISSION);
+        }
+
+        barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_scanner2);
+        barcodeView.decodeContinuous(callback);
+        barcodeView.setStatusText("Arahkan barcode nametag & gelang ke garis merah\n untuk mulai scan.");
+
+        beepManager = new BeepManager(this);
+        toolbar = (Toolbar) findViewById(R.id.scan_toolbar3);
+        setupToolbar();
+        imageView.setBackgroundColor(Color.rgb(0, 0, 255));
+    }
 
     private BarcodeCallback callback = new BarcodeCallback() {
         @Override
@@ -82,31 +121,66 @@ public class KesehatanActivity extends AppCompatActivity {
             }
 
             //Added preview of scanned barcode
-            //imageView.setImageBitmap(result.getBitmapWithResultPoints(Color.YELLOW));
+            //imageView.setImategeBitmap(result.getBitmapWithResultPoints(Color.YELLOW));
 
-            if (counter % 2 == 0 ) {
-                imageView.setBackgroundColor(Color.rgb(0, 255, 0));
+            if (result.getBarcodeFormat().toString().equalsIgnoreCase("QR_CODE")){
+                textNametag.setText(decodeBase64(result.getText()));
+                textView.setText("SCAN GELANG MILIK \n"+ textNametag.getText());
+                btnManual.setVisibility(View.INVISIBLE);
+                btnManual2.setVisibility(View.VISIBLE);
+                imageView.setBackgroundColor(Color.rgb(255, 0, 0));
             }
-            else {
-                imageView.setBackgroundColor(Color.rgb(0, 0, 255));
+            else if (result.getBarcodeFormat().toString().equalsIgnoreCase("CODE_128")){
+                if (textNametag.getText().equals("")){
+                    //nametag belum discan
+                    AlertDialog alertDialog = new AlertDialog.Builder(GelangActivity.this).create();
+                    alertDialog.setTitle("ERROR!");
+                    alertDialog.setMessage("Nametag belum discan! silahkan scan nametagnya terlebih dahulu!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+                    textView.setText("SCAN NAMETAG");
+                    btnManual.setVisibility(View.VISIBLE);
+                    btnManual2.setVisibility(View.INVISIBLE);
+                    imageView.setBackgroundColor(Color.rgb(0, 0, 255));
+                }
+                else {
+                    //nametag sudah discan
+//                    AlertDialog alertDialog = new AlertDialog.Builder(GelangActivity.this).create();
+//                    alertDialog.setTitle("Berhasil!");
+//                    alertDialog.setMessage("Gelang "+result.getText()+" berhasil diregistrasi ke NIM "+textNametag.getText().toString());
+//                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+//                            new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.dismiss();
+//                                }
+//                            });
+//                    alertDialog.show();
+
+                    kirimData(textNametag.getText().toString(), result.getText());
+
+                    textNametag.setText("");
+                    textView.setText("SCAN NAMETAG");
+                    btnManual.setVisibility(View.VISIBLE);
+                    btnManual2.setVisibility(View.INVISIBLE);
+                    imageView.setBackgroundColor(Color.rgb(0, 0, 255));
+                }
             }
+
 
             if(db.cekNim(result.getText()) == 0) {
-                db.addAbsensi(new Absensi(result.getText(), getTanggal()));
+                db.addAbsensi(new Absensi(decodeBase64(result.getText()), textNametag.getText().toString()));
             }
 
-            //untuk presentasi gelang
-            if (result.getText().equals("1873916383")){
-                kirimData("NDE3MDAwNjYyOQ==");
-            }
-            else {
-                kirimData(result.getText());
-            }
-
+            //kirimData(result.getText());
             lastText = result.getText();
             beepManager.playBeepSoundAndVibrate();
 
-            textView.setText(result.getText());
+            //textView.setText(result.getBarcodeFormat().toString());
             counter++;
 
         }
@@ -116,34 +190,95 @@ public class KesehatanActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
-        setContentView(R.layout.activity_kesehatan);
-        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+    public void manual(View v){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText text = new EditText(this);
+        text.setInputType(InputType.TYPE_CLASS_NUMBER);
+        text.setRawInputType(Configuration.KEYBOARD_12KEY);
 
-        imageView = (ImageView) findViewById(R.id.barcodePreview2);
-        textView = (TextView) findViewById(R.id.txtHasil2);
+        builder.setTitle("Input Manual").setMessage("Masukkan NIM mahasiswa").setView(text);
+        builder.setPositiveButton("Oke", new DialogInterface.OnClickListener() {
 
-        if (CheckPermission(KesehatanActivity.this, Manifest.permission.CAMERA)) {
+            public void onClick(DialogInterface di, int i) {
+                final String nimmanual = text.getText().toString();
+                textNametag.setText(nimmanual);
+                textView.setText("SCAN GELANG MILIK \n"+ nimmanual);
+                imageView.setBackgroundColor(Color.rgb(255, 0, 0));
+                btnManual.setVisibility(View.INVISIBLE);
+                btnManual2.setVisibility(View.VISIBLE);
+            }
+        });
 
-        } else {
-            // you do not have permission go request runtime permissions
-            RequestPermission(KesehatanActivity.this, Manifest.permission.CAMERA, REQUEST_RUNTIME_PERMISSION);
+        //builder.setCancelable(false);
+        builder.create().show();
+    }
+
+    public void manual2(View v){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText text = new EditText(this);
+        text.setInputType(InputType.TYPE_CLASS_NUMBER);
+        text.setRawInputType(Configuration.KEYBOARD_12KEY);
+
+        builder.setTitle("Input Manual").setMessage("Masukkan nomor gelang").setView(text);
+        builder.setPositiveButton("Oke", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface di, int i) {
+                final String gelangmanual = text.getText().toString();
+                if (textNametag.getText().equals("")){
+                    //nametag belum discan
+                    AlertDialog alertDialog = new AlertDialog.Builder(GelangActivity.this).create();
+                    alertDialog.setTitle("ERROR!");
+                    alertDialog.setMessage("Nametag belum discan! silahkan scan nametagnya terlebih dahulu!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+                    textView.setText("SCAN NAMETAG");
+                    btnManual.setVisibility(View.VISIBLE);
+                    btnManual2.setVisibility(View.INVISIBLE);
+                    imageView.setBackgroundColor(Color.rgb(0, 0, 255));
+                }
+                else {
+                    //nametag sudah discan
+//                    AlertDialog alertDialog = new AlertDialog.Builder(GelangActivity.this).create();
+//                    alertDialog.setTitle("Berhasil!");
+//                    alertDialog.setMessage("Gelang "+gelangmanual+" berhasil diregistrasi ke NIM "+textNametag.getText().toString());
+//                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+//                            new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.dismiss();
+//                                }
+//                            });
+//                    alertDialog.show();
+
+                    kirimData(textNametag.getText().toString(),gelangmanual);
+                    textNametag.setText("");
+                    textView.setText("SCAN NAMETAG");
+                    btnManual.setVisibility(View.VISIBLE);
+                    btnManual2.setVisibility(View.INVISIBLE);
+                    imageView.setBackgroundColor(Color.rgb(0, 0, 255));
+                }
+            }
+        });
+
+        //builder.setCancelable(false);
+        builder.create().show();
+    }
+
+    private String decodeBase64(String coded){
+        byte[] valueDecoded= new byte[0];
+        try {
+            valueDecoded = Base64.decode(coded.getBytes("UTF-8"), Base64.DEFAULT);
+        } catch (UnsupportedEncodingException e) {
         }
-
-        barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_scanner2);
-        barcodeView.decodeContinuous(callback);
-        barcodeView.setStatusText("Arahkan barcode gelang ke garis merah untuk mulai scan.");
-
-        beepManager = new BeepManager(this);
-        toolbar = (Toolbar) findViewById(R.id.scan_toolbar2);
-        setupToolbar();
+        return new String(valueDecoded);
     }
 
     private void setupToolbar(){
-        toolbar.setTitle("Scan Gelang");
+        toolbar.setTitle("Registrasi Gelang");
         setSupportActionBar(toolbar);
         if (getSupportActionBar() !=null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -152,7 +287,7 @@ public class KesehatanActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                i = new Intent(KesehatanActivity.this, MainActivity.class);
+                i = new Intent(GelangActivity.this, MainActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
             }
@@ -217,7 +352,7 @@ public class KesehatanActivity extends AppCompatActivity {
                     // you have permission go ahead
                     //authUser();
                 } else {
-                    AlertDialog alertDialog = new AlertDialog.Builder(KesehatanActivity.this).create();
+                    AlertDialog alertDialog = new AlertDialog.Builder(GelangActivity.this).create();
                     alertDialog.setTitle("Error");
                     alertDialog.setMessage("Kamu harus mengizinkan aplikasi ini!");
                     alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
@@ -234,9 +369,9 @@ public class KesehatanActivity extends AppCompatActivity {
         }
     }
 
-    private void kirimData(final String nimnya){
+    private void kirimData(final String nimnya, final String gelang){
 
-        final ProgressDialog loadingDialog = new ProgressDialog(KesehatanActivity.this);
+        final ProgressDialog loadingDialog = new ProgressDialog(GelangActivity.this);
         //set message of the dialog
         loadingDialog.setMessage("Mengirimkan ke server...");
         loadingDialog.setCanceledOnTouchOutside(false);
@@ -255,16 +390,8 @@ public class KesehatanActivity extends AppCompatActivity {
                         boolean berhasil = json.key("berhasil").booleanValue();
 
                         if (berhasil){
-                            Intent intent = new Intent(KesehatanActivity.this, DataMahasiswaActivity.class);
-                            intent.putExtra("mahasiswa", json.key("mahasiswa").stringValue());
-                            intent.putExtra("kesehatan", json.key("kesehatan").stringValue());
-                            startActivity(intent);
-                        }
-                        else {
-                            loadingDialog.dismiss();
-
-                            AlertDialog alertDialog = new AlertDialog.Builder(KesehatanActivity.this).create();
-                            alertDialog.setTitle("Scan Gagal!");
+                            AlertDialog alertDialog = new AlertDialog.Builder(GelangActivity.this).create();
+                            alertDialog.setTitle("REGISTRASI BERHASIL");
                             alertDialog.setMessage(json.key("pesan").stringValue());
                             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
                                     new DialogInterface.OnClickListener() {
@@ -273,7 +400,21 @@ public class KesehatanActivity extends AppCompatActivity {
                                         }
                                     });
                             alertDialog.show();
-                            imageView.setBackgroundColor(Color.rgb(255, 0, 0));
+                        }
+                        else {
+                            loadingDialog.dismiss();
+
+                            AlertDialog alertDialog = new AlertDialog.Builder(GelangActivity.this).create();
+                            alertDialog.setTitle("Registrasi Gagal!");
+                            alertDialog.setMessage(json.key("pesan").stringValue());
+                            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                        }
+                                    });
+                            alertDialog.show();
+                            //imageView.setBackgroundColor(Color.rgb(255, 0, 0));
                         }
 
                         Answers.getInstance().logContentView(new ContentViewEvent()
@@ -306,7 +447,7 @@ public class KesehatanActivity extends AppCompatActivity {
                             message = "Koneksi timeout! Cek koneksi internet kamu!";
                         }
 
-                        AlertDialog alertDialog = new AlertDialog.Builder(KesehatanActivity.this).create();
+                        AlertDialog alertDialog = new AlertDialog.Builder(GelangActivity.this).create();
                         alertDialog.setTitle("Error!");
                         alertDialog.setMessage(message);
                         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
@@ -319,7 +460,7 @@ public class KesehatanActivity extends AppCompatActivity {
                         alertDialog.setCancelable(false);
                         alertDialog.setCanceledOnTouchOutside(false);
                         alertDialog.show();
-                        imageView.setBackgroundColor(Color.rgb(255, 0, 0));
+                        //imageView.setBackgroundColor(Color.rgb(255, 0, 0));
                     }
                 }){
             @Override
@@ -327,8 +468,7 @@ public class KesehatanActivity extends AppCompatActivity {
                 Map<String,String> params = new HashMap<String, String>();
                 params.put("uuid", getUUID());
                 params.put("NIM", nimnya);
-                params.put("venue", "KOSONG");
-                params.put("kelompok", "1");
+                params.put("gelang", gelang);
                 return params;
             }
 
@@ -378,7 +518,7 @@ public class KesehatanActivity extends AppCompatActivity {
     }
 
     public void keKesehatan(View v) {
-        Intent intent = new Intent(this, KesehatanActivity.class);
+        Intent intent = new Intent(this, GelangActivity.class);
         startActivity(intent);
     }
 

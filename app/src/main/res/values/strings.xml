@@ -7,7 +7,7 @@
     <string name="action_settings">Settings</string>
     <string name="about_title">About Us</string>
     <string name="data_title">Riwayat Scan</string>
-    <string name="scan_title">Scan Penugasan</string>
+    <string name="scan_title">Mulai Scan</string>
     <string name="data_mahasiswa_title">Data Mahasiswa</string>
 
     <string name="text_about">RAJApps adalah aplikasi berbasis android yang digunakan untuk memindai kode QR pada lembar penugasan dan nametag mahasiswa baru. </string>

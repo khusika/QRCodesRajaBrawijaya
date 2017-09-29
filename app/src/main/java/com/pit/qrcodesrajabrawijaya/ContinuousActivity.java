@@ -100,7 +100,7 @@ public class ContinuousActivity extends AppCompatActivity {
 //            }
 
             if(db.cekNim(result.getText()) == 0) {
-                db.addAbsensi(new Absensi(result.getText(), getTanggal()));
+                db.addAbsensi(new Absensi(result.getBarcodeFormat().toString(), getTanggal()));
             }
 
             String kelompok = txtKelompok.getText().toString();

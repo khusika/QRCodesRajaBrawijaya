@@ -17,9 +17,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,6 +47,7 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
@@ -56,9 +60,9 @@ import java.util.Map;
 import eu.amirs.JSON;
 import io.fabric.sdk.android.Fabric;
 
-public class KesehatanActivity extends AppCompatActivity {
+public class UKMActivity extends AppCompatActivity {
     TelephonyManager telephonyManager;
-    private static final String TAG = KesehatanActivity.class.getSimpleName();
+    private static final String TAG = GelangActivity.class.getSimpleName();
     private int counter = 1;
     private DecoratedBarcodeView barcodeView;
     private BeepManager beepManager;
@@ -67,11 +71,45 @@ public class KesehatanActivity extends AppCompatActivity {
     private Intent i;
 
     private static final int REQUEST_RUNTIME_PERMISSION = 321;
-    private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/tugas";
+    private static final String KIRIM_URL = "http://rajabrawijaya.ub.ac.id/api/ukm";
+    private String divisinya;
     DatabaseHandler db = new DatabaseHandler(this);
 
     ImageView imageView;
     TextView textView;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
+        setContentView(R.layout.activity_ukm);
+        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+
+        imageView = (ImageView) findViewById(R.id.barcodePreview2);
+        textView = (TextView) findViewById(R.id.txtHasil2);
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            divisinya = bundle.getString("divisi");
+        }
+
+        if (CheckPermission(UKMActivity.this, Manifest.permission.CAMERA)) {
+
+        } else {
+            // you do not have permission go request runtime permissions
+            RequestPermission(UKMActivity.this, Manifest.permission.CAMERA, REQUEST_RUNTIME_PERMISSION);
+        }
+
+        barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_scanner2);
+        barcodeView.decodeContinuous(callback);
+        barcodeView.setStatusText("Arahkan barcode gelang ke garis merah untuk mulai scan.");
+
+        beepManager = new BeepManager(this);
+        toolbar = (Toolbar) findViewById(R.id.scan_toolbar3);
+        setupToolbar();
+    }
 
     private BarcodeCallback callback = new BarcodeCallback() {
         @Override
@@ -82,31 +120,24 @@ public class KesehatanActivity extends AppCompatActivity {
             }
 
             //Added preview of scanned barcode
-            //imageView.setImageBitmap(result.getBitmapWithResultPoints(Color.YELLOW));
+            //imageView.setImategeBitmap(result.getBitmapWithResultPoints(Color.YELLOW));
 
-            if (counter % 2 == 0 ) {
-                imageView.setBackgroundColor(Color.rgb(0, 255, 0));
+            if (result.getBarcodeFormat().toString().equalsIgnoreCase("CODE_128")){
+                kirimData(result.getText());
+                textView.setText(result.getText());
+
             }
-            else {
-                imageView.setBackgroundColor(Color.rgb(0, 0, 255));
-            }
+
 
             if(db.cekNim(result.getText()) == 0) {
                 db.addAbsensi(new Absensi(result.getText(), getTanggal()));
             }
 
-            //untuk presentasi gelang
-            if (result.getText().equals("1873916383")){
-                kirimData("NDE3MDAwNjYyOQ==");
-            }
-            else {
-                kirimData(result.getText());
-            }
-
+            //kirimData(result.getText());
             lastText = result.getText();
             beepManager.playBeepSoundAndVibrate();
 
-            textView.setText(result.getText());
+            //textView.setText(result.getBarcodeFormat().toString());
             counter++;
 
         }
@@ -116,34 +147,9 @@ public class KesehatanActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
-        setContentView(R.layout.activity_kesehatan);
-        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-
-        imageView = (ImageView) findViewById(R.id.barcodePreview2);
-        textView = (TextView) findViewById(R.id.txtHasil2);
-
-        if (CheckPermission(KesehatanActivity.this, Manifest.permission.CAMERA)) {
-
-        } else {
-            // you do not have permission go request runtime permissions
-            RequestPermission(KesehatanActivity.this, Manifest.permission.CAMERA, REQUEST_RUNTIME_PERMISSION);
-        }
-
-        barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_scanner2);
-        barcodeView.decodeContinuous(callback);
-        barcodeView.setStatusText("Arahkan barcode gelang ke garis merah untuk mulai scan.");
-
-        beepManager = new BeepManager(this);
-        toolbar = (Toolbar) findViewById(R.id.scan_toolbar2);
-        setupToolbar();
-    }
 
     private void setupToolbar(){
-        toolbar.setTitle("Scan Gelang");
+        toolbar.setTitle("Registrasi UKM");
         setSupportActionBar(toolbar);
         if (getSupportActionBar() !=null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -152,7 +158,7 @@ public class KesehatanActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                i = new Intent(KesehatanActivity.this, MainActivity.class);
+                i = new Intent(UKMActivity.this, MainActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
             }
@@ -217,7 +223,7 @@ public class KesehatanActivity extends AppCompatActivity {
                     // you have permission go ahead
                     //authUser();
                 } else {
-                    AlertDialog alertDialog = new AlertDialog.Builder(KesehatanActivity.this).create();
+                    AlertDialog alertDialog = new AlertDialog.Builder(UKMActivity.this).create();
                     alertDialog.setTitle("Error");
                     alertDialog.setMessage("Kamu harus mengizinkan aplikasi ini!");
                     alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
@@ -236,7 +242,7 @@ public class KesehatanActivity extends AppCompatActivity {
 
     private void kirimData(final String nimnya){
 
-        final ProgressDialog loadingDialog = new ProgressDialog(KesehatanActivity.this);
+        final ProgressDialog loadingDialog = new ProgressDialog(UKMActivity.this);
         //set message of the dialog
         loadingDialog.setMessage("Mengirimkan ke server...");
         loadingDialog.setCanceledOnTouchOutside(false);
@@ -255,16 +261,8 @@ public class KesehatanActivity extends AppCompatActivity {
                         boolean berhasil = json.key("berhasil").booleanValue();
 
                         if (berhasil){
-                            Intent intent = new Intent(KesehatanActivity.this, DataMahasiswaActivity.class);
-                            intent.putExtra("mahasiswa", json.key("mahasiswa").stringValue());
-                            intent.putExtra("kesehatan", json.key("kesehatan").stringValue());
-                            startActivity(intent);
-                        }
-                        else {
-                            loadingDialog.dismiss();
-
-                            AlertDialog alertDialog = new AlertDialog.Builder(KesehatanActivity.this).create();
-                            alertDialog.setTitle("Scan Gagal!");
+                            AlertDialog alertDialog = new AlertDialog.Builder(UKMActivity.this).create();
+                            alertDialog.setTitle("REGISTRASI BERHASIL");
                             alertDialog.setMessage(json.key("pesan").stringValue());
                             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
                                     new DialogInterface.OnClickListener() {
@@ -273,7 +271,21 @@ public class KesehatanActivity extends AppCompatActivity {
                                         }
                                     });
                             alertDialog.show();
-                            imageView.setBackgroundColor(Color.rgb(255, 0, 0));
+                        }
+                        else {
+                            loadingDialog.dismiss();
+
+                            AlertDialog alertDialog = new AlertDialog.Builder(UKMActivity.this).create();
+                            alertDialog.setTitle("Registrasi Gagal!");
+                            alertDialog.setMessage(json.key("pesan").stringValue());
+                            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                        }
+                                    });
+                            alertDialog.show();
+                            //imageView.setBackgroundColor(Color.rgb(255, 0, 0));
                         }
 
                         Answers.getInstance().logContentView(new ContentViewEvent()
@@ -295,7 +307,7 @@ public class KesehatanActivity extends AppCompatActivity {
                         if (error instanceof NetworkError) {
                             message = "Tidak bisa terhubung ke server. Cek koneksi internet kamu! (1)";
                         } else if (error instanceof ServerError) {
-                            message = "Format QR Code salah!";
+                            message = "Server error hubungi petugas PIT!";
                         } else if (error instanceof AuthFailureError) {
                             message = "Tidak bisa terhubung ke server. Cek koneksi internet kamu! (2)";
                         } else if (error instanceof ParseError) {
@@ -306,7 +318,7 @@ public class KesehatanActivity extends AppCompatActivity {
                             message = "Koneksi timeout! Cek koneksi internet kamu!";
                         }
 
-                        AlertDialog alertDialog = new AlertDialog.Builder(KesehatanActivity.this).create();
+                        AlertDialog alertDialog = new AlertDialog.Builder(UKMActivity.this).create();
                         alertDialog.setTitle("Error!");
                         alertDialog.setMessage(message);
                         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
@@ -326,9 +338,8 @@ public class KesehatanActivity extends AppCompatActivity {
             protected Map<String,String> getParams(){
                 Map<String,String> params = new HashMap<String, String>();
                 params.put("uuid", getUUID());
-                params.put("NIM", nimnya);
-                params.put("venue", "KOSONG");
-                params.put("kelompok", "1");
+                params.put("gelang", nimnya);
+                params.put("ukm", divisinya);
                 return params;
             }
 
@@ -377,9 +388,5 @@ public class KesehatanActivity extends AppCompatActivity {
         return dateFormat.format(date);
     }
 
-    public void keKesehatan(View v) {
-        Intent intent = new Intent(this, KesehatanActivity.class);
-        startActivity(intent);
-    }
 
 }
