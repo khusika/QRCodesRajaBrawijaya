@@ -84,7 +84,20 @@
                         android:layout_marginTop="15dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Pilih Divisi"/>
+                        android:text="Tipe Akun"/>
+
+                    <Spinner
+                        android:id="@+id/spnTipe"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:drawable/btn_dropdown"
+                        android:spinnerMode="dropdown" />
+
+                    <TextView
+                        android:layout_marginTop="15dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Pilih Bagian"/>
 
                     <Spinner
                         android:id="@+id/spnDivisi"

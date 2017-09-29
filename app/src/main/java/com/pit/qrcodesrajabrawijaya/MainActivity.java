@@ -131,15 +131,18 @@ public class MainActivity extends AppCompatActivity
                 if(!menuItem.isChecked()) {
                     menuItem.setChecked(false);
                     //startActivity(new Intent(this, ContinuousActivity.class));
-                    if (lblDivisiOP.getText().toString().equalsIgnoreCase("KESEHATAN")  ) {
-                        startActivity(new Intent(this, KesehatanActivity.class));
+                    //untuk panitia
+                    if (lblDivisiOP.getText().toString().equalsIgnoreCase("PIT") || lblDivisiOP.getText().toString().equalsIgnoreCase("KESTARI") || lblDivisiOP.getText().toString().equalsIgnoreCase("SPV") || lblDivisiOP.getText().toString().equalsIgnoreCase("KESEHATAN") || lblDivisiOP.getText().toString().equalsIgnoreCase("INTI")  ) {
+                        startActivity(new Intent(this, GelangActivity.class));
                         return false;
                     }
                     else {
+                        //untuk ukm
                         Log.e("test", lblDivisiOP.getText().toString());
-                        Intent intent = new Intent(this, ContinuousActivity.class);
+                        Intent intent = new Intent(this, UKMActivity.class);
                         intent.putExtra("divisi", lblDivisiOP.getText().toString());
                         startActivity(intent);
+                        return false;
                     }
                 }
                 drawerLayout.closeDrawer(GravityCompat.START);

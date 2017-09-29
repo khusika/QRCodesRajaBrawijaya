@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -44,7 +45,8 @@ public class DaftarActivity extends AppCompatActivity {
 
     TelephonyManager telephonyManager;
     EditText txtNIM, txtNAMA;
-    Spinner spnDivisi;
+
+
 
     private static final String REGISTER_URL = "http://rajabrawijaya.ub.ac.id/api/daftar";
 
@@ -58,12 +60,47 @@ public class DaftarActivity extends AppCompatActivity {
 
         txtNAMA = (EditText) findViewById(R.id.txtNama);
         txtNIM = (EditText) findViewById(R.id.txtNIM);
-        spnDivisi = (Spinner) findViewById(R.id.spnDivisi);
 
-        Spinner dropdown = (Spinner)findViewById(R.id.spnDivisi);
-        String[] items = new String[]{"PIT", "KESTARI", "SPV", "KESEHATAN", "INTI"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
-        dropdown.setAdapter(adapter);
+
+        Spinner tipe = (Spinner)findViewById(R.id.spnTipe);
+        String[] itemtipe = new String[]{"Panitia", "UKM"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, itemtipe);
+        tipe.setAdapter(adapter);
+
+        tipe.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                if(selectedItem.equals("Panitia")) {
+                    // do your stuff
+                    populasi(1);
+                }
+                else if ((selectedItem.equals("UKM"))){
+                    populasi(2);
+                }
+            } // to close the onItemSelected
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
+    }
+
+    public void populasi(int tipe){
+        Spinner divisi = (Spinner)findViewById(R.id.spnDivisi);
+
+        String[] itempanitia = new String[]{"PIT", "KESTARI", "SPV", "KESEHATAN", "INTI"};
+        String[] itemukm = new String[]{"AIESEC", "BBC (Brawijaya Bridge Community)", "BCC (Brawijaya Chess Club)", "BSB (Baseball – Softball Brawijaya)", "BSC (Basic Shooting Club)", "BUMERANG BRAWIJAYA", "DPM (Dewan Perwakilan Mahasiswa)", "EM (Eksekutif Mahasiswa)", "Fordimapelar (Forum Studi Mahasiswa Pengembang Penalaran)", "FORMAPI (Forum Mahasiswa Peduli Inklusi)", "FORMASI (Forum Mahasiswa Studi Bahasa Inggris)", "IAAS", "IMPALA (Ikatan Mahasiswa Pecinta Alam)", "INKAI", "KSR (Korps Sukarela)", "Marching Band ESB", "Menwa (Resimen Mahasiswa)", "MW (Mahasiswa Wirausaha)", "Nol Derajat Film", "PDUB (Perisai Diri Universitas Brawijaya)", "PPS Betako Merpati Putih", "Pramuka", "PSHT (Persatuan Setia Hati Terate)", "PSM (Paduan Suara Mahasiswa)", "Renang", "RKIM (Riset dan Karya Ilmiah Mahasiswa)", "Seni Religi", "Shorinji Kempo", "Tapak Suci", "Teater Kutub", "TEGAZS (Tim Penanggulangan Penyalahgunaan Napza dan HIV/AIDS)", "TI-UB (Taekwondo Indonesia Universitas Brawijaya)", "UAB (Unit Aktivitas Band)", "UABB (Unit Aktivitas Basket Brawijaya)", "UABT UB (Unit Aktivitas Bulutangkis Universitas Brawijaya)", "UABV (Unit Aktivitas Bola Voli)", "UAKB (Unit Aktivitas Kerohanian Budha)", "UAKI (Unit Aktivitas Kerohanian Islam)", "UAKK (Unit Aktivitas Kerohanian Kristen)", "UAKKat (Unit Aktivitas Kerohanian Katholik)", "UAP Brawijaya (Unit Aktivitas Panahan Brawijaya)", "UAPKM (Unit Aktifitas Pers Kampus Mahasiswa)", "UASB UB (Unit Aktivitas Sepak Bola UB)", "UATL (Unit Aktivitas Tenis Lapangan)", "UATM (Unit Aktivitas Tenis Meja)", "UNIKAHIDHA (Unit Aktivitas Kerohanian Hindu Dharma)", "UNITANTRI (Unit Aktivitas Karawitan dan Tari)", "Lainnya.."};
+
+        if (tipe == 1){
+            ArrayAdapter<String> adapterpanitia = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, itempanitia);
+            divisi.setAdapter(adapterpanitia);
+        }
+        else {
+            ArrayAdapter<String> adapterukm = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, itemukm);
+            divisi.setAdapter(adapterukm);
+        }
     }
 
     public void daftarklik(View v){
@@ -77,6 +114,7 @@ public class DaftarActivity extends AppCompatActivity {
     }
 
     private void daftarUser(){
+        final Spinner divisi = (Spinner)findViewById(R.id.spnDivisi);
 
         final ProgressDialog loadingDialog = new ProgressDialog(DaftarActivity.this);
         loadingDialog.setMessage("Mendaftarkan ke server...");
@@ -100,7 +138,7 @@ public class DaftarActivity extends AppCompatActivity {
                                     .putContentId("2")
                                     .putCustomAttribute("NAMA", txtNAMA.getText().toString())
                                     .putCustomAttribute("NIM", txtNIM.getText().toString())
-                                    .putCustomAttribute("DIVISI", spnDivisi.getSelectedItem().toString())
+                                    .putCustomAttribute("DIVISI", divisi.getSelectedItem().toString())
                                     .putCustomAttribute("MODEL", Build.MANUFACTURER + " " +Build.MODEL)
                                     .putCustomAttribute("VERSI", Build.VERSION.RELEASE));
 
@@ -137,7 +175,7 @@ public class DaftarActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         loadingDialog.dismiss();
 
-                        String message = null;
+                        String message = error.getMessage();
                         if (error instanceof NetworkError) {
                             message = "Tidak bisa terhubung ke server. Cek koneksi internet kamu! (1)";
                         } else if (error instanceof ServerError) {
@@ -153,7 +191,7 @@ public class DaftarActivity extends AppCompatActivity {
                         }
 
                         AlertDialog alertDialog = new AlertDialog.Builder(DaftarActivity.this).create();
-                        alertDialog.setTitle("Error!");
+                        alertDialog.setTitle("Error!!");
                         alertDialog.setMessage(message);
                         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Oke",
                                 new DialogInterface.OnClickListener() {
@@ -173,7 +211,7 @@ public class DaftarActivity extends AppCompatActivity {
                 params.put("uuid", getUUID());
                 params.put("nama", txtNAMA.getText().toString());
                 params.put("NIM", txtNIM.getText().toString());
-                params.put("divisi", spnDivisi.getSelectedItem().toString());
+                params.put("divisi", divisi.getSelectedItem().toString());
                 params.put("model", Build.MANUFACTURER + " " +Build.MODEL);
                 params.put("versi", Build.VERSION.RELEASE);
                 return params;

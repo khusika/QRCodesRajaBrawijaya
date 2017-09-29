@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/side_nav_bar"
+    tools:context="com.pit.qrcodesrajabrawijaya.GelangActivity">
+    >
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/scan_toolbar3"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@drawable/side_nav_bar"
+        android:elevation="4dp"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/barcode_scanner2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/buttonsLayout2"
+        android:layout_marginTop="35dp"
+        android:layout_alignParentTop="true">
+
+    </com.journeyapps.barcodescanner.DecoratedBarcodeView>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/buttonsLayout2"
+        android:layout_toLeftOf="@+id/centerHorizont2">
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/centerHorizont2" />
+
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/buttonsLayout2"
+        android:id="@+id/barcodePreview2" />
+
+    <TextView
+        android:id="@+id/txtHasil2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/barcodePreview2"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:textColor="@android:color/white"
+        android:text="SCAN NAMETAG"
+        android:textSize="17sp"
+        android:gravity="center"
+        />
+
+    <TextView
+        android:id="@+id/txtNametag"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/barcodePreview2"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:textColor="@android:color/white"
+        android:visibility="invisible"
+        android:textSize="17sp"
+        android:gravity="center"
+        />
+
+    <Button
+        android:id="@+id/btnManual"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/barcodePreview2"
+        android:layout_alignParentRight="true"
+        android:onClick="manual"
+        android:text="INPUT\nMANUAL\nNAMETAG"/>
+
+    <Button
+        android:id="@+id/btnManual2"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/barcodePreview2"
+        android:layout_alignParentRight="true"
+        android:onClick="manual2"
+        android:text="INPUT\nMANUAL\nGELANG"
+        android:visibility="invisible"/>
+
+</RelativeLayout>

@@ -24,26 +24,34 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.pit.qrcodesrajabrawijaya.activities.AboutActivity"
+            android:name=".activities.AboutActivity"
             android:theme="@style/AppTheme2" />
         <activity
-            android:name="com.pit.qrcodesrajabrawijaya.activities.DataActivity"
+            android:name=".activities.DataActivity"
             android:theme="@style/AppTheme2" />
         <activity
-            android:name="com.pit.qrcodesrajabrawijaya.ContinuousActivity"
+            android:name=".ContinuousActivity"
             android:theme="@style/AppTheme2" />
         <activity
-            android:name="com.pit.qrcodesrajabrawijaya.KesehatanActivity"
+            android:name=".KesehatanActivity"
             android:theme="@style/AppTheme2" />
         <activity
-            android:name="com.pit.qrcodesrajabrawijaya.DaftarActivity"
+            android:name=".GelangActivity"
             android:theme="@style/AppTheme2" />
         <activity
-            android:name="com.pit.qrcodesrajabrawijaya.DataMahasiswaActivity"
+            android:name=".UKMActivity"
             android:theme="@style/AppTheme2" />
+        <activity
+            android:name=".DaftarActivity"
+            android:theme="@style/AppTheme2" />
+        <activity
+            android:name=".DataMahasiswaActivity"
+            android:theme="@style/AppTheme2" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="8561da09268002ee5405947bde6a0837a3c10019" />
+
     </application>
 
 </manifest>
